@@ -18,7 +18,8 @@ exports.GetMessages = async (req, res, next) => {
                 { from: userId, to: req.userId }
             ], $and: [{ seen: false }]
         }, { "$set": { seen: true } })
-        res.status(200).send(chats)
+const chatsreversed = [...chats].reverse();
+        res.status(200).send(chatsreversed)
     } catch (error) {
         res.status(500).send({ error: error })
     }

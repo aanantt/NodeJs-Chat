@@ -1,6 +1,7 @@
 const User = require('../Model/user.js')
 const Chat = require('../Model/chatModel.js')
 const Message = require('../Model/messageModel.js')
+const connectedUsers = require('../sockets/connectedSocket.js')
 
 exports.AllChats = async (req, res, next) => {
     let users;
@@ -25,6 +26,7 @@ exports.MyChats = async (req, res, next) => {
                 let msg = await Message.findOne().or([{ to: req.userId, from: _chats[0].chats[index]._id }, { from: req.userId, to: _chats[0].chats[index]._id }]).sort({ field: 'asc', _id: -1 })
                 _chats[0].chats[index].message = msg
             }
+
             res.status(200).json(_chats);
         }
         else {
@@ -38,11 +40,9 @@ exports.MyChats = async (req, res, next) => {
     }
 }
 
-exports.AddChat =async (req, res, next) => {
+exports.AddChat = async (req, res, next) => {
     console.log("USERID")
     console.log(req.params.userId)
-    let query = { user: req.userId };
-    let options = { upsert: true, new: true, setDefaultsOnInsert: true };
     try {
         const _res = await Chat.findOneAndUpdate({ user: req.userId }, {
             "$addToSet": {
@@ -71,17 +71,38 @@ exports.AddChat =async (req, res, next) => {
             }).save();
         }
         if (_res1 === null) {
-          await  Chat({
+            await Chat({
                 user: req.params.userId,
                 chats: [
                     req.userId
                 ]
             }).save();
         }
+        console.log("CONNECTED USERS :- ")
+        console.log(connectedUsers.connectedUsersList)
+        const user = await User.findOne({ _id: req.params.userId }).lean()
+        user.message = {
+            message: "New Message",
+            from: req.userId,
+            to: req.params.userId
+        }
+        const payload = {
+            newChat: true,
+            user: user
+
+        }
+        if (connectedUsers.connectedUsersList[req.userId]) {
+            connectedUsers.connectedUsersList[req.userId].send(JSON.stringify(payload));
+        }
+        if (connectedUsers.connectedUsersList[req.params.userId]) {
+            connectedUsers.connectedUsersList[req.params.userId].send(JSON.stringify(payload));
+        }
+
         res.status(200).send()
 
     } catch (error) {
-        res.status(500).send(err)
+        console.log(error)
+        res.status(500).send({ err: "error" })
     }
-  
+
 }

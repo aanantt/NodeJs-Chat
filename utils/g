@@ -1,0 +1,91 @@
+const ws = require('ws');
+const messaging = new ws.WebSocketServer({ noServer: true });
+const getInt = require('../utils/getInt.js')
+const Message = require('../Model/messageModel')
+
+const connectedUsers = require('./connectedSocket.js')
+
+
+const log = (str) => console.log(str);
+
+const sendResponse = (socketType, res,id) => {
+    if (connectedUsers.connectedUsersList[id]) {
+        const payload = {
+            "newChat": false,
+            "message": res
+        }
+        connectedUsers.connectedUsersList[id].send(JSON.stringify(payload))
+    }
+    log(socketType.send(JSON.stringify(res)))
+
+}
+
+
+const addMessage = function (data, bool, request, id) {
+
+    Message({
+        message: data.message,
+        from: request.userId,
+        to: id,
+        seen: bool
+    }).save().then((res) => res).catch((err) => log(err));
+
+}
+
+const getRoom = (id1, id2) => {
+    // create a unique room based on user's id
+    if (id1 > id2) {
+        return `${id1}-${id2}`
+    }
+    return `${id2}-${id1}`
+}
+let messagingWebsockets = {};
+
+messaging.on('connection', function connection(ws, request) {
+    const id1 = request.url.split('/')[2];
+    const room = getRoom(getInt(id1), getInt(request.userId))
+    ws.id = request.userId
+    if (!messagingWebsockets[room]) {
+        messagingWebsockets[room] = [ws];
+    }
+    else {
+        messagingWebsockets[room].push(ws)
+    }
+
+    ws.on('message', (data) => {
+        const _data = JSON.parse(data)
+        log(_data);
+        log(messagingWebsockets[room])
+         if (messagingWebsockets[room].length === 1) {
+            if (messagingWebsockets[room][0].id === id1) {
+                const messageResponse = addMessage(_data, true, request, id1)
+                sendResponse(messagingWebsockets[room][0], messageResponse);
+            }
+            else {
+                const messageResponse = addMessage(_data, false, request, id1)
+                sendResponse(messagingWebsockets[room][0], messageResponse);
+            }
+        }
+        else {
+            const messageResponse = addMessage(_data, true, request, id1)
+            for (let index = 0; index < messagingWebsockets[room].length; index++) {
+                sendResponse(messagingWebsockets[room][index], messageResponse);
+
+            }
+        }
+
+
+    });
+
+    ws.on('close', function () {
+        for (let index = 0; index < messagingWebsockets[room].length; index++) {
+            if (messagingWebsockets[room][index].id === request.userId) {
+                messagingWebsockets[room].splice(index, 1)
+
+            }
+        }
+    })
+
+});
+
+module.exports = { messaging, messagingWebsockets }
