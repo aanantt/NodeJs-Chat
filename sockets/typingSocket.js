@@ -42,7 +42,7 @@ typing.on('connection', function connection(ws, request) {
         for (let index = 0; index < typingWebsockets[room].length; index++) {
 
             console.log(typingWebsockets[room][index].id + id1)
-            // only send typing response to only the other user in room
+            // only send typing response to the other user in room
             if (typingWebsockets[room][index].id.toString() === id1.toString()) {
                 typingWebsockets[room][index].send(JSON.stringify(_data));
             }

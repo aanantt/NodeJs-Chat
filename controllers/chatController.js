@@ -80,7 +80,7 @@ exports.AddChat = async (req, res, next) => {
         }
         console.log("CONNECTED USERS :- ")
         console.log(connectedUsers.connectedUsersList)
-        const user = await User.findOne({ _id: req.params.userId }).lean()
+        const user = await User.findOne({ _id: req.userId }).lean()
         user.message = {
             message: "New Message",
             from: req.userId,
@@ -94,9 +94,9 @@ exports.AddChat = async (req, res, next) => {
         if (connectedUsers.connectedUsersList[req.userId]) {
             connectedUsers.connectedUsersList[req.userId].send(JSON.stringify(payload));
         }
-        if (connectedUsers.connectedUsersList[req.params.userId]) {
-            connectedUsers.connectedUsersList[req.params.userId].send(JSON.stringify(payload));
-        }
+        // if (connectedUsers.connectedUsersList[req.params.userId]) {
+        //     connectedUsers.connectedUsersList[req.params.userId].send(JSON.stringify(payload));
+        // }
 
         res.status(200).send()
 
