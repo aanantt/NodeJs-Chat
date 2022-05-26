@@ -1,7 +1,22 @@
 # NodeJs-Chat
-Chat backend built on Nodejs websockets with MVC Architecture and it's [frontend](https://github.com/aanantt/Flutter-Chat) is built on Flutter with Bloc as a state managment. 
+Chat backend built on Nodejs websockets with MVC Architecture and it's [frontend](https://github.com/aanantt/Flutter-Chat) is built on Flutter with Bloc as a state managment and MongoDB is used as the database. 
 
-Features in the Chat App:
+## Features in the Chat App:
+<ol>
+  <li>Send and receive messages</li>
+  <li>Reply to a message</li>
+  <li>Show "Typing" when typing starts</li>
+  <li>Update message and remove deleted message</li>
+  <li>Get updated message and delete message </li>
+    <li>Seen messages will not show again just like Snapchat</li>
+
+  </ol>
+
+
+  
+  
+
+## Features in the Chat App with screen recording:
   <ol>
   <li>Send messages</li>
     
