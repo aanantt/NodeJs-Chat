@@ -1,5 +1,5 @@
 # NodeJs-Chat
-Chat backend built on Nodejs websockets with MVC Architecture and it's [frontend](https://github.com/aanantt/Flutter-Chat) is built on Flutter with Bloc as a state managment and MongoDB is used as the database. 
+Chat backend built on Nodejs websockets with MVC Architecture, [frontend](https://github.com/aanantt/Flutter-Chat) is built on Flutter with Bloc as a state managment and MongoDB is used as the database. 
 
 ## Features in the Chat App:
 <ol>
